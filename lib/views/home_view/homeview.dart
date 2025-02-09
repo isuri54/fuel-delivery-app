@@ -1,6 +1,9 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter_application_6/consts/consts.dart';
 import 'package:flutter_application_6/consts/lists.dart';
+import 'package:get/get.dart';
+
+import '../../res/custombtn.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -242,6 +245,21 @@ class _HomeViewState extends State<HomeView> {
                     );
                   }
                 ),
+                ),
+                
+              ),
+              20.heightBox,
+              Center(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: CustomButton(
+                    buttonText: "NEXT", 
+                    onTap: () {
+                      
+                    },
+                    textColor: Colors.black,
+                    buttonColor: AppColors.greenC,
+                  ),
                 ),
               ),
               ],

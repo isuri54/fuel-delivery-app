@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/colors.dart';
 import 'package:flutter_application_6/views/home_view/homeview.dart';
+import 'package:flutter_application_6/views/orders_view/ordersview.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,7 +15,7 @@ class _HomeState extends State<Home> {
   int selectedIndex = 0;
   List screenList = [
     const HomeView(),
-    const HomeView(),
+    const OrdersView(),
     const HomeView(),
     const HomeView()
   ];

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/consts.dart';
+import 'package:flutter_application_6/controllers/authcontroller.dart';
 import 'package:flutter_application_6/res/custombtn.dart';
 import 'package:flutter_application_6/res/customtf.dart';
 import 'package:flutter_application_6/views/login_view/loginview.dart';
 import 'package:get/get.dart';
+
+import '../home_view/home.dart';
 
 class Signupview extends StatefulWidget {
   const Signupview({super.key});
@@ -15,6 +18,7 @@ class Signupview extends StatefulWidget {
 class _SignupviewState extends State<Signupview> {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: BackgroundLayout(),
     );
@@ -25,6 +29,9 @@ class _SignupviewState extends State<Signupview> {
 class BackgroundLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    var controller = Get.put(AuthController());
+
     return Stack(
       children: [
         // Background image
@@ -46,8 +53,8 @@ class BackgroundLayout extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
                 child: CustomTextField(
-                  hint: "EMAIL",
-                  textController: TextEditingController(),
+                  hint: "FULL NAME",
+                  textController: controller.fullnameController,
                   textColor: Colors.black54,
                   borderColor: Colors.transparent,
                   inputColor: AppColors.textC,
@@ -58,8 +65,8 @@ class BackgroundLayout extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
                 child: CustomTextField(
-                  hint: "PASSWORD",
-                  textController: TextEditingController(),
+                  hint: "EMAIL",
+                  textController: controller.emailController,
                   textColor: Colors.black54,
                   borderColor: Colors.transparent,
                   inputColor: AppColors.textC,
@@ -70,8 +77,8 @@ class BackgroundLayout extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
                 child: CustomTextField(
-                  hint: "CONFIRM PASSWORD",
-                  textController: TextEditingController(),
+                  hint: "PASSWORD",
+                  textController: controller.passwordController,
                   textColor: Colors.black54,
                   borderColor: Colors.transparent,
                   inputColor: AppColors.textC,
@@ -83,9 +90,41 @@ class BackgroundLayout extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.6,
                 child: CustomButton(
                   buttonText: "SIGN UP", 
-                  onTap: () {
-                    Get.to(() => LoginView());
-                  },
+                  onTap: () async {
+                  try {
+                    await controller.signupUser();
+
+                    if (controller.userCredential != null) {
+                      Get.to(() => const Home());
+                    } else {
+                      Get.snackbar(
+                        "Signup Failed",
+                        "Could not create account. Please try again.",
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
+                  } catch (e) {
+                    String errorMessage = "An error occurred. Please try again.";
+
+                    if (e.toString().contains("email-already-in-use")) {
+                      errorMessage = "This email is already in use. Please log in.";
+                    } else if (e.toString().contains("weak-password")) {
+                      errorMessage = "Your password is too weak. Use at least 6 characters.";
+                    } else if (e.toString().contains("invalid-email")) {
+                      errorMessage = "Invalid email format. Please check and try again.";
+                    }
+
+                    Get.snackbar(
+                      "Signup Error",
+                      errorMessage,
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                  }
+                },
                   textColor: Colors.black,
                   buttonColor: AppColors.greenC,
                 ),

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/consts.dart';
 import 'package:flutter_application_6/res/custombtn.dart';
 import 'package:flutter_application_6/res/customtf.dart';
+import 'package:flutter_application_6/views/home_view/home.dart';
 import 'package:flutter_application_6/views/home_view/homeview.dart';
 import 'package:flutter_application_6/views/signup_view/signupview.dart';
 import 'package:get/get.dart';
+
+import '../../controllers/authcontroller.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -26,6 +29,9 @@ class _LoginViewState extends State<LoginView> {
 class BackgroundLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    var controller = Get.put(AuthController());
+
     return Stack(
       children: [
         // Background image
@@ -48,7 +54,7 @@ class BackgroundLayout extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
                 child: CustomTextField(
                   hint: "EMAIL",
-                  textController: TextEditingController(),
+                  textController: controller.emailController,
                   textColor: Colors.black54,
                   borderColor: Colors.transparent,
                   inputColor: AppColors.textC,
@@ -60,7 +66,7 @@ class BackgroundLayout extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
                 child: CustomTextField(
                   hint: "PASSWORD",
-                  textController: TextEditingController(),
+                  textController: controller.passwordController,
                   textColor: Colors.black54,
                   borderColor: Colors.transparent,
                   inputColor: AppColors.textC,
@@ -72,8 +78,29 @@ class BackgroundLayout extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.6,
                 child: CustomButton(
                   buttonText: "LOGIN", 
-                  onTap: () {
-                    Get.offAll(() => const HomeView());
+                  onTap: () async {
+                    try {
+                      await controller.loginUser();
+                      if(controller.userCredential != null) {
+                        Get.to(() => const Home());
+                      } else {
+                        Get.snackbar(
+                          "Login Failed",
+                          "Invalid email or password. Please try again.",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      } 
+                    } catch (e) {
+                      Get.snackbar(
+                        "Error",
+                        e.toString(), // Shows the actual error message
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
                   },
                   textColor: Colors.black,
                   buttonColor: AppColors.greenC,
