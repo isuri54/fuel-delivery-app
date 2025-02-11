@@ -27,7 +27,6 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: Colors.black.withOpacity(0.5),
         selectedItemColor: AppColors.greenC,
-        // ignore: prefer_const_constructors
         selectedLabelStyle: TextStyle(
           color: AppColors.greenC,
         ),
@@ -47,7 +46,8 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Orders"),
           BottomNavigationBarItem(icon: Icon(Icons.money), label: "Prices"),
           BottomNavigationBarItem(icon: Icon(Icons.person_sharp), label: "Profile"),
-        ]),
+        ]
+      ),
     );
   }
 }

@@ -65,9 +65,9 @@ class OrderItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
-              "assets/engine-oil.png",
-              width: 50,
-              height: 50,
+              "assets/images/engine-oil.png",
+              width: 40,
+              height: 40,
             ),
             const SizedBox(width: 10),
 

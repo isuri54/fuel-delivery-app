@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter_application_6/consts/consts.dart';
 import 'package:flutter_application_6/consts/lists.dart';
 import 'package:get/get.dart';
 
 import '../../res/custombtn.dart';
+import '../locationview/locationview.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -13,13 +15,36 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  int selectedIndex = -1;
-  int selectedBtn = -1;
+  int selectedFuelIndex = -1;
+  int selectedDeliveryIndex = -1;
+  String? selectedQuantity;
 
-  final List<String> items = [
+  List<String> iconList = [AppAssets.petrol,AppAssets.petrol,AppAssets.diesel,AppAssets.diesel,AppAssets.kero,AppAssets.eng,];
+  List<String> items = [
     "1L","2L","3L","4L","5L","6L","7L","8L","9L","10L","11L","12L","13L","14L","15L","16L","17L","18L","19L","20L",
   ];
-  String? selectedValue;
+  
+  List<String> iconTitleList = ["Petrol Octane 92", "Petrol Octane 95", " Super Diesel", "Diesel", "Kerosene", "Engine Oil"];
+  List<String> btnList = ["Normal", "Urgent"];
+  
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void saveToDatabase() async {
+    if (selectedFuelIndex == -1 || selectedDeliveryIndex == -1 || selectedQuantity == null) {
+      return; // Prevent saving if not all fields are selected
+    }
+
+    String selectedFuel = iconTitleList[selectedFuelIndex]; // Get selected fuel type
+    String selectedDelivery = btnList[selectedDeliveryIndex]; // Get selected delivery type
+
+    await _firestore.collection('orders').add({
+      'fuelType': selectedFuel,
+      'quantity': selectedQuantity,
+      'deliveryType': selectedDelivery,
+      'orderDate': FieldValue.serverTimestamp(),
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,12 +106,13 @@ class _HomeViewState extends State<HomeView> {
                   scrollDirection: Axis.horizontal,
                   itemCount: iconList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    bool isSelected = selectedIndex == index;
+                    bool isSelected = selectedFuelIndex == index;
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedIndex = index;
+                          selectedFuelIndex = index;
                         });
+                        saveToDatabase();
                       },
                       child: Container(
                       decoration: BoxDecoration(
@@ -159,11 +185,12 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ))
                         .toList(),
-                    value: selectedValue,
+                    value: selectedQuantity,
                     onChanged: (String? value) {
                       setState(() {
-                        selectedValue = value;
+                        selectedQuantity = value;
                       });
+                      saveToDatabase();
                     },
                     buttonStyleData: ButtonStyleData(
                       height: 50,
@@ -222,12 +249,13 @@ class _HomeViewState extends State<HomeView> {
                     scrollDirection: Axis.horizontal,
                     itemCount: btnList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      bool isSelected = selectedBtn == index;
+                      bool isSelected = selectedDeliveryIndex == index;
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedBtn = index;
+                            selectedDeliveryIndex = index;
                           });
+                          saveToDatabase();
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -255,7 +283,7 @@ class _HomeViewState extends State<HomeView> {
                   child: CustomButton(
                     buttonText: "NEXT", 
                     onTap: () {
-                      
+                      Get.to(() => const LocationView());
                     },
                     textColor: Colors.black,
                     buttonColor: AppColors.greenC,

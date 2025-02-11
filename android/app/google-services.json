@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375074853481",
+    "project_id": "fuel-delivery-a7717",
+    "storage_bucket": "fuel-delivery-a7717.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375074853481:android:caa12e114f3b8e5edfc8f8",
+        "android_client_info": {
+          "package_name": "com.example.fuel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFKYYy5ToRwnZvhIrS7PX57XfOdSO69s4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,8 +6,6 @@ import 'package:flutter_application_6/res/customtf.dart';
 import 'package:flutter_application_6/views/login_view/loginview.dart';
 import 'package:get/get.dart';
 
-import '../home_view/home.dart';
-
 class Signupview extends StatefulWidget {
   const Signupview({super.key});
 
@@ -95,7 +93,7 @@ class BackgroundLayout extends StatelessWidget {
                     await controller.signupUser();
 
                     if (controller.userCredential != null) {
-                      Get.to(() => const Home());
+                      Get.to(() => const LoginView());
                     } else {
                       Get.snackbar(
                         "Signup Failed",

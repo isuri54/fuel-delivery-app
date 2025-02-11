@@ -95,7 +95,7 @@ class BackgroundLayout extends StatelessWidget {
                     } catch (e) {
                       Get.snackbar(
                         "Error",
-                        e.toString(), // Shows the actual error message
+                        e.toString(),
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: Colors.red,
                         colorText: Colors.white,
