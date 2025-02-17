@@ -1,8 +1,13 @@
 import 'dart:convert';
+import 'package:flutter_application_6/views/billing_view/billingview.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../consts/colors.dart';
+import '../../res/custombtn.dart';
 
 class LocationView extends StatefulWidget {
   const LocationView({super.key});
@@ -21,7 +26,9 @@ class _LocationViewState extends State<LocationView> {
   void initState() {
     super.initState();
     checkPermissions();
-    _getCurrentLocation();
+    _getCurrentLocation().then((_) {
+      _findNearestFuelStation(10,10);
+    });
   }
 
   void checkPermissions() async {
@@ -110,6 +117,7 @@ class _LocationViewState extends State<LocationView> {
           : Stack(
               children: [
                 GoogleMap(
+                  mapType: MapType.normal,
                   initialCameraPosition: CameraPosition(
                     target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                     zoom: 14,
@@ -153,6 +161,19 @@ class _LocationViewState extends State<LocationView> {
                     ),
                   ),
                 ),
+                Center(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: CustomButton(
+                    buttonText: "CHECKOUT", 
+                    onTap: () {
+                      
+                    },
+                    textColor: Colors.black,
+                    buttonColor: AppColors.greenC,
+                  ),
+                ),
+              ),
               ],
             ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter_application_6/consts/lists.dart';
 import 'package:get/get.dart';
 
 import '../../res/custombtn.dart';
+import '../billing_view/billingview.dart';
 import '../locationview/locationview.dart';
 
 class HomeView extends StatefulWidget {
@@ -25,13 +26,13 @@ class _HomeViewState extends State<HomeView> {
   ];
   
   List<String> iconTitleList = ["Petrol Octane 92", "Petrol Octane 95", " Super Diesel", "Diesel", "Kerosene", "Engine Oil"];
-  List<String> btnList = ["Normal", "Urgent"];
+  List<String> btnList = ["Standard", "Urgent"];
   
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void saveToDatabase() async {
     if (selectedFuelIndex == -1 || selectedDeliveryIndex == -1 || selectedQuantity == null) {
-      return; // Prevent saving if not all fields are selected
+      return; 
     }
 
     String selectedFuel = iconTitleList[selectedFuelIndex]; // Get selected fuel type
@@ -44,6 +45,34 @@ class _HomeViewState extends State<HomeView> {
       'orderDate': FieldValue.serverTimestamp(),
     });
 
+  }
+
+  List<Map<String, dynamic>> fuelData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFuelData();
+  }
+
+  Future<void> fetchFuelData() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('fuel_prices').get();
+      List<Map<String, dynamic>> tempList = [];
+
+      for (var doc in querySnapshot.docs) {
+        tempList.add({
+          'name': doc['name'],
+          'price': doc['price'],
+        });
+      }
+
+      setState(() {
+        fuelData = tempList;
+      });
+    } catch (e) {
+      print("Error fetching fuel data: $e");
+    }
   }
 
   @override
@@ -283,7 +312,12 @@ class _HomeViewState extends State<HomeView> {
                   child: CustomButton(
                     buttonText: "NEXT", 
                     onTap: () {
-                      Get.to(() => const LocationView());
+                      Get.to(() => BillingPage(
+                        fuelType: "Super Diesel",
+                        quantity: 20,
+                        deliveryType: "Standard", 
+                        shippingFee: 250,
+                      ));
                     },
                     textColor: Colors.black,
                     buttonColor: AppColors.greenC,

@@ -34,16 +34,14 @@ class BackgroundLayout extends StatelessWidget {
 
     return Stack(
       children: [
-        // Background image
         Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(AppAssets.bgimg), // Path to your image
+              image: AssetImage(AppAssets.bgimg),
               fit: BoxFit.cover,
             ),
           ),
         ),
-        // Positioned buttons
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +49,7 @@ class BackgroundLayout extends StatelessWidget {
               AppStyles.normal(title: "Login", size: AppSizes.size34, color: Colors.white),
               20.heightBox,
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: CustomTextField(
                   hint: "EMAIL",
                   textController: controller.emailController,
@@ -63,7 +61,7 @@ class BackgroundLayout extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9, // Adjust the width
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: CustomTextField(
                   hint: "PASSWORD",
                   textController: controller.passwordController,

@@ -1,9 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/fonts.dart';
-import 'package:flutter_application_6/views/login_view/loginview.dart';
+import 'package:flutter_application_6/res/waitingscreen.dart';
 import 'package:get/get.dart';
-
 import 'firebase_options.dart';
 
 
@@ -12,6 +11,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
   runApp(MyApp());
 }
 
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         fontFamily: AppFonts.kanitBlack
       ),
       debugShowCheckedModeBanner: false,
-      home: const LoginView(),
+      home: const WaitingScreen(),
     );
   }
 }
