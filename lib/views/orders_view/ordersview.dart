@@ -45,7 +45,7 @@ class OrdersView extends StatelessWidget {
 
 class OrderItemCard extends StatelessWidget {
   final String fuelType;
-  final String orderDate;
+  final Timestamp orderDate;
   final int quantity;
 
   const OrderItemCard({

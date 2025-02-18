@@ -4,15 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class BillingPage extends StatefulWidget {
   final String fuelType;
-  final int quantity;
-  final String deliveryType;
-  final int shippingFee;
+  final String selectedFuel;
+  final int selectedQuantity;
+  final int selectedFuelPrice;
+  final String selectedDelivery;
 
   BillingPage({
     required this.fuelType,
-    required this.quantity,
-    required this.deliveryType,
-    required this.shippingFee,
+    required this.selectedFuel,
+    required this.selectedQuantity,
+    required this.selectedFuelPrice,
+    required this.selectedDelivery,
   });
 
   @override
@@ -25,31 +27,27 @@ class _BillingPageState extends State<BillingPage> {
   final TextEditingController addressController = TextEditingController();
 
   bool isLoading = true;
-  int fuelPrice = 0;
   int totalPrice = 0;
+  int totalFuelPrice = 0;
 
   @override
   void initState() {
     super.initState();
-    fetchFuelPrice();
     fetchUserDetails();
+    _fetchFuelPrice();
   }
 
-  Future<void> fetchFuelPrice() async {
-    try {
-      var doc = await FirebaseFirestore.instance
-          .collection('fuel_prices')
-          .doc(widget.fuelType)
-          .get();
-      
-      if (doc.exists) {
-        setState(() {
-          fuelPrice = doc['price'];
-          totalPrice = (fuelPrice * widget.quantity) + widget.shippingFee;
-        });
-      }
-    } catch (e) {
-      print("Error fetching fuel price: $e");
+  void _fetchFuelPrice() async {
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('fuel_prices')
+        .doc(widget.fuelType)
+        .get();
+
+    if (doc.exists) {
+      setState(() {
+        totalFuelPrice = doc['price'] * widget.selectedQuantity;
+        totalPrice = totalFuelPrice + 250;
+      });
     }
   }
 
@@ -81,13 +79,13 @@ class _BillingPageState extends State<BillingPage> {
 
     await FirebaseFirestore.instance.collection('orders').add({
       'userId': user.uid,
-      'fuelType': widget.fuelType,
-      'quantity': widget.quantity,
-      'price': fuelPrice,
-      'fuelTotal': fuelPrice * widget.quantity,
-      'shippingFee': widget.shippingFee,
+      'fuelType': widget.selectedFuel,
+      'quantity': widget.selectedQuantity,
+      'price': widget.selectedFuelPrice,
+      'fuelTotal': widget.selectedFuelPrice * widget.selectedQuantity,
+      'shippingFee': 250, 
       'totalAmount': totalPrice,
-      'deliveryType': widget.deliveryType,
+      'deliveryType': widget.selectedDelivery,
       'orderDate': Timestamp.now(),
     });
 
@@ -120,15 +118,16 @@ class _BillingPageState extends State<BillingPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.fuelType, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text("${widget.quantity}L"),
-                          Text("Rs. ${fuelPrice.toStringAsFixed(2)}"),
+                          Text(widget.selectedFuel, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text("${widget.selectedQuantity}L"),
+                          Text("Rs. ${widget.selectedFuelPrice.toStringAsFixed(2)}"),
                         ],
                       ),
                     ],
                   ),
                   SizedBox(height: 10),
                   Container(
+                    width: 400,
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black),
@@ -136,9 +135,9 @@ class _BillingPageState extends State<BillingPage> {
                     ),
                     child: Column(
                       children: [
-                        Text(widget.deliveryType, style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(widget.selectedDelivery, style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: const Color.fromARGB(137, 92, 91, 91),)),
                         Text("Get by 20-23 Feb"),
-                        Text("Rs. ${widget.shippingFee}"),
+                        Text("Rs. 250"),
                       ],
                     ),
                   ),
@@ -147,7 +146,23 @@ class _BillingPageState extends State<BillingPage> {
                   TextField(controller: nameController, decoration: InputDecoration(labelText: "Name")),
                   TextField(controller: contactController, decoration: InputDecoration(labelText: "Contact number")),
                   TextField(controller: addressController, decoration: InputDecoration(labelText: "Address"), maxLines: 2),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Fuel Total:', style: TextStyle(fontSize: 16)),
+                      Text('$totalFuelPrice', style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Shipping Fee:', style: TextStyle(fontSize: 16)),
+                      Text('Rs. 250', style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  SizedBox(height: 80),
                   Container(
                     color: Colors.green,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),

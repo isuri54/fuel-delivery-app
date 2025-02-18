@@ -19,33 +19,17 @@ class _HomeViewState extends State<HomeView> {
   int selectedFuelIndex = -1;
   int selectedDeliveryIndex = -1;
   String? selectedQuantity;
+  int selectedFuelPrice = 0;
 
   List<String> iconList = [AppAssets.petrol,AppAssets.petrol,AppAssets.diesel,AppAssets.diesel,AppAssets.kero,AppAssets.eng,];
   List<String> items = [
     "1L","2L","3L","4L","5L","6L","7L","8L","9L","10L","11L","12L","13L","14L","15L","16L","17L","18L","19L","20L",
   ];
   
-  List<String> iconTitleList = ["Petrol Octane 92", "Petrol Octane 95", " Super Diesel", "Diesel", "Kerosene", "Engine Oil"];
+  List<String> iconTitleList = ["Octane 92 Petrol", "Octane 95 Petrol", " Super Diesel", "Diesel", "Kerosene", "Engine Oil"];
   List<String> btnList = ["Standard", "Urgent"];
   
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  void saveToDatabase() async {
-    if (selectedFuelIndex == -1 || selectedDeliveryIndex == -1 || selectedQuantity == null) {
-      return; 
-    }
-
-    String selectedFuel = iconTitleList[selectedFuelIndex]; // Get selected fuel type
-    String selectedDelivery = btnList[selectedDeliveryIndex]; // Get selected delivery type
-
-    await _firestore.collection('orders').add({
-      'fuelType': selectedFuel,
-      'quantity': selectedQuantity,
-      'deliveryType': selectedDelivery,
-      'orderDate': FieldValue.serverTimestamp(),
-    });
-
-  }
 
   List<Map<String, dynamic>> fuelData = [];
 
@@ -73,6 +57,21 @@ class _HomeViewState extends State<HomeView> {
     } catch (e) {
       print("Error fetching fuel data: $e");
     }
+  }
+
+  void navigateToLocationPage() {
+    if (selectedFuelIndex == -1 || selectedDeliveryIndex == -1 || selectedQuantity == null) {
+      Get.snackbar("Error", "Please select all order details before proceeding.");
+      return;
+    }
+
+    Get.to(() => BillingPage(
+          fuelType: iconTitleList[selectedFuelIndex],
+          selectedFuel: iconTitleList[selectedFuelIndex],
+          selectedQuantity: int.parse(selectedQuantity!.replaceAll(RegExp(r'[^0-9]'), '')),
+          selectedFuelPrice: selectedFuelPrice,
+          selectedDelivery: btnList[selectedDeliveryIndex],
+        ));
   }
 
   @override
@@ -140,8 +139,8 @@ class _HomeViewState extends State<HomeView> {
                       onTap: () {
                         setState(() {
                           selectedFuelIndex = index;
+                          selectedFuelPrice = fuelData.isNotEmpty ? fuelData[index]['price'] : 0;
                         });
-                        saveToDatabase();
                       },
                       child: Container(
                       decoration: BoxDecoration(
@@ -219,7 +218,6 @@ class _HomeViewState extends State<HomeView> {
                       setState(() {
                         selectedQuantity = value;
                       });
-                      saveToDatabase();
                     },
                     buttonStyleData: ButtonStyleData(
                       height: 50,
@@ -284,7 +282,6 @@ class _HomeViewState extends State<HomeView> {
                           setState(() {
                             selectedDeliveryIndex = index;
                           });
-                          saveToDatabase();
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -312,12 +309,7 @@ class _HomeViewState extends State<HomeView> {
                   child: CustomButton(
                     buttonText: "NEXT", 
                     onTap: () {
-                      Get.to(() => BillingPage(
-                        fuelType: "Super Diesel",
-                        quantity: 20,
-                        deliveryType: "Standard", 
-                        shippingFee: 250,
-                      ));
+                      navigateToLocationPage();
                     },
                     textColor: Colors.black,
                     buttonColor: AppColors.greenC,
