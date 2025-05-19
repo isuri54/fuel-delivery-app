@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/fonts.dart';
 import 'package:flutter_application_6/res/waitingscreen.dart';
+import 'package:flutter_application_6/views/signup_view/signupview.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
 

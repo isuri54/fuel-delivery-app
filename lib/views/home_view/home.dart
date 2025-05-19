@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/colors.dart';
 import 'package:flutter_application_6/views/home_view/homeview.dart';
+import 'package:flutter_application_6/views/locationview/locationview.dart';
 import 'package:flutter_application_6/views/orders_view/ordersview.dart';
 
 class Home extends StatefulWidget {
@@ -16,6 +17,7 @@ class _HomeState extends State<Home> {
   List screenList = [
     const HomeView(),
     const OrdersView(),
+    const LocationView(),
     const HomeView(),
     const HomeView()
   ];
@@ -44,6 +46,7 @@ class _HomeState extends State<Home> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Orders"),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Location"),
           BottomNavigationBarItem(icon: Icon(Icons.money), label: "Prices"),
           BottomNavigationBarItem(icon: Icon(Icons.person_sharp), label: "Profile"),
         ]
