@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/consts/colors.dart';
+import 'package:flutter_application_6/views/admin_dashboard/admin.dart';
 import 'package:flutter_application_6/views/home_view/homeview.dart';
 import 'package:flutter_application_6/views/locationview/locationview.dart';
 import 'package:flutter_application_6/views/orders_view/ordersview.dart';
+import 'package:flutter_application_6/views/profile_view/profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -19,7 +21,8 @@ class _HomeState extends State<Home> {
     const OrdersView(),
     const LocationView(),
     const HomeView(),
-    const HomeView()
+    const ProfilePage(),
+    const AdminDashboard()
   ];
 
   @override
@@ -49,6 +52,7 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Location"),
           BottomNavigationBarItem(icon: Icon(Icons.money), label: "Prices"),
           BottomNavigationBarItem(icon: Icon(Icons.person_sharp), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: "Admin"),
         ]
       ),
     );

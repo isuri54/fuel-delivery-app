@@ -79,8 +79,8 @@ class _BillingPageState extends State<BillingPage> {
     if (doc.exists) {
       setState(() {
         nameController.text = doc['fullname'] ?? '';
-        //contactController.text = doc['contact'] ?? '';
-        //addressController.text = doc['address'] ?? '';
+        contactController.text = doc['contact'] ?? '';
+        addressController.text = doc['address'] ?? '';
       });
     }
     setState(() => isLoading = false);

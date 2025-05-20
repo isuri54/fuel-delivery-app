@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_6/consts/consts.dart';
 import 'package:flutter_application_6/views/home_view/home.dart';
+import 'package:flutter_application_6/views/login_view/loginview.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -12,7 +13,11 @@ class AuthController extends GetxController {
 
   isUserAlreadyLoggedIn() async {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      Get.offAll(() => const Home());
+      if (user != null) {
+        Get.offAll(() => const Home());
+      } else {
+        Get.offAll(() => const LoginView());
+      }
     });
   }
 
