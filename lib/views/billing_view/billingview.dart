@@ -132,65 +132,7 @@ class _BillingPageState extends State<BillingPage> {
       'totalAmount': totalPrice,
       'deliveryType': widget.selectedDelivery,
       'orderDate': Timestamp.now(),
-      The issue you’re encountering at 11:54 PM +0530 on Friday, May 23, 2025, in the OrdersView page arises because new orders placed via the BillingPage do not have a status field in Firestore, while the OrderItemCard widget expects a status field (defaulting to "Processing" if it’s missing). When you manually added status fields to previous orders in the database, those orders display correctly, but new orders lack this field, causing the exception. Let’s fix this by ensuring every new order includes a status field when it’s created.
-
-Root Cause
-In the placeOrder method of BillingPage, the order document is created without a status field:
-dart
-
-Copy
-await FirebaseFirestore.instance.collection('orders').add({
-  'orderId': orderId,
-  'userId': user.uid,
-  'fuelType': widget.selectedFuel,
-  'quantity': widget.selectedQuantity,
-  'price': pricePerLitre,
-  'fuelTotal': totalFuelPrice,
-  'shippingFee': 250,
-  'totalAmount': totalPrice,
-  'deliveryType': widget.selectedDelivery,
-  'orderDate': Timestamp.now(),
-});
-The OrderItemCard widget in OrdersView attempts to access order['status'] with a fallback:
-dart
-
-Copy
-status: order['status'] as String? ?? 'Processing',
-However, if order['status'] is missing, this fallback works, but you mentioned an exception, suggesting there might be a mismatch or additional logic elsewhere (e.g., in Firestore security rules or another part of your app). Let’s ensure the status field is always set when creating a new order.
-Solution
-Update the placeOrder method in BillingPage to include a status field with a default value (e.g., "Processing") when creating a new order.
-Optionally, update existing orders in Firestore to include the status field if they’re missing it (to handle any orders placed before this fix).
-Step 1: Update placeOrder to Include status
-Modify the placeOrder method in BillingPage to add a status field to every new order.
-
-Updated placeOrder in BillingPage
-Here’s the modified placeOrder method:
-
-dart
-
-Copy
-Future<void> placeOrder() async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) return;
-
-  await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-    'fullname': nameController.text,
-    'contact': contactController.text,
-    'address': addressController.text,
-  }, SetOptions(merge: true));
-
-  await FirebaseFirestore.instance.collection('orders').add({
-    'orderId': orderId,
-    'userId': user.uid,
-    'fuelType': widget.selectedFuel,
-    'quantity': widget.selectedQuantity,
-    'price': pricePerLitre,
-    'fuelTotal': totalFuelPrice,
-    'shippingFee': 250,
-    'totalAmount': totalPrice,
-    'deliveryType': widget.selectedDelivery,
-    'orderDate': Timestamp.now(),
-    'status': 'Processing',
+      'status': 'Processing',
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
