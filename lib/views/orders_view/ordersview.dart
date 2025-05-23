@@ -30,12 +30,12 @@ class OrdersView extends StatelessWidget {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               var order = orders[index];
-              // Convert quantity from String to int, with fallback to 0 if invalid
               int quantity = int.tryParse(order['quantity']?.toString() ?? '0') ?? 0;
               return OrderItemCard(
                 fuelType: order['fuelType'] as String? ?? 'Unknown',
                 orderDate: order['orderDate'] as Timestamp? ?? Timestamp.now(),
                 quantity: quantity,
+                status: order['status'] as String? ?? 'Processing',
               );
             },
           );
@@ -49,12 +49,14 @@ class OrderItemCard extends StatelessWidget {
   final String fuelType;
   final Timestamp orderDate;
   final int quantity;
+  final String status;
 
   const OrderItemCard({
     Key? key,
     required this.fuelType,
     required this.orderDate,
     required this.quantity,
+    required this.status
   }) : super(key: key);
 
   @override
@@ -82,6 +84,10 @@ class OrderItemCard extends StatelessWidget {
                   ),
                   Text(
                     "Ordered on ${orderDate.toDate().toLocal()}",
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  Text(
+                    "Order Status: $status",
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 ],

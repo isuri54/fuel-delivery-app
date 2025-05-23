@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_6/consts/consts.dart';
+import 'package:uuid/uuid.dart';
 
 class BillingPage extends StatefulWidget {
   final String fuelType;
@@ -30,6 +31,9 @@ class _BillingPageState extends State<BillingPage> {
   bool isLoading = true;
   int totalPrice = 0;
   int totalFuelPrice = 0;
+  String orderId = '';
+  final Uuid _uuid = Uuid();
+  int pricePerLitre = 0;
 
   @override
   void initState() {
@@ -43,31 +47,52 @@ class _BillingPageState extends State<BillingPage> {
     
     setState(() {
       isLoading = false;
+      orderId = _generateOrderId();
     });
+  }
+
+  String _generateOrderId() {
+    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    String randomId = _uuid.v4().split('-').first; 
+    return 'ORD-${timestamp}-${randomId}'; 
   }
 
   Future<void> _fetchFuelPrice() async {
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('fuel_prices')
-          .doc(widget.fuelType)
+      QuerySnapshot query = await FirebaseFirestore.instance
+          .collection('fuel_types')
+          .where('name', isEqualTo: widget.fuelType)
+          .limit(1)
           .get();
 
-      if (doc.exists && doc['price'] != null) {
-        //int pricePerLitre = doc['price'];
+      if (query.docs.isNotEmpty) {
+      DocumentSnapshot doc = query.docs.first;
+      if (doc['price'] != null) {
+        pricePerLitre = doc['price'];
         setState(() {
-          totalFuelPrice = 250 * widget.selectedQuantity;
+          totalFuelPrice = pricePerLitre * widget.selectedQuantity;
           totalPrice = totalFuelPrice + 250;
         });
       } else {
-        throw Exception("Price data not found for ${widget.fuelType}");
+        throw Exception("Price field missing for ${widget.fuelType}");
       }
-    } catch (e) {
-      print("Error fetching fuel price: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error loading fuel price. Please try again."),
-      ));
+    } else {
+      print("No document found for fuelType: ${widget.fuelType}");
+      throw Exception("Price data not found for ${widget.fuelType}");
     }
+  } catch (e) {
+    print("Error fetching fuel price: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error loading fuel price for ${widget.fuelType}. Please try again."),
+      ),
+    );
+    setState(() {
+      pricePerLitre = widget.selectedFuelPrice;
+      totalFuelPrice = pricePerLitre * widget.selectedQuantity;
+      totalPrice = totalFuelPrice + 250;
+    });
+  }
   }
 
   Future<void> fetchUserDetails() async {
@@ -97,6 +122,7 @@ class _BillingPageState extends State<BillingPage> {
     }, SetOptions(merge: true));
 
     await FirebaseFirestore.instance.collection('orders').add({
+      'orderId': orderId,
       'userId': user.uid,
       'fuelType': widget.selectedFuel,
       'quantity': widget.selectedQuantity,
@@ -106,6 +132,65 @@ class _BillingPageState extends State<BillingPage> {
       'totalAmount': totalPrice,
       'deliveryType': widget.selectedDelivery,
       'orderDate': Timestamp.now(),
+      The issue you’re encountering at 11:54 PM +0530 on Friday, May 23, 2025, in the OrdersView page arises because new orders placed via the BillingPage do not have a status field in Firestore, while the OrderItemCard widget expects a status field (defaulting to "Processing" if it’s missing). When you manually added status fields to previous orders in the database, those orders display correctly, but new orders lack this field, causing the exception. Let’s fix this by ensuring every new order includes a status field when it’s created.
+
+Root Cause
+In the placeOrder method of BillingPage, the order document is created without a status field:
+dart
+
+Copy
+await FirebaseFirestore.instance.collection('orders').add({
+  'orderId': orderId,
+  'userId': user.uid,
+  'fuelType': widget.selectedFuel,
+  'quantity': widget.selectedQuantity,
+  'price': pricePerLitre,
+  'fuelTotal': totalFuelPrice,
+  'shippingFee': 250,
+  'totalAmount': totalPrice,
+  'deliveryType': widget.selectedDelivery,
+  'orderDate': Timestamp.now(),
+});
+The OrderItemCard widget in OrdersView attempts to access order['status'] with a fallback:
+dart
+
+Copy
+status: order['status'] as String? ?? 'Processing',
+However, if order['status'] is missing, this fallback works, but you mentioned an exception, suggesting there might be a mismatch or additional logic elsewhere (e.g., in Firestore security rules or another part of your app). Let’s ensure the status field is always set when creating a new order.
+Solution
+Update the placeOrder method in BillingPage to include a status field with a default value (e.g., "Processing") when creating a new order.
+Optionally, update existing orders in Firestore to include the status field if they’re missing it (to handle any orders placed before this fix).
+Step 1: Update placeOrder to Include status
+Modify the placeOrder method in BillingPage to add a status field to every new order.
+
+Updated placeOrder in BillingPage
+Here’s the modified placeOrder method:
+
+dart
+
+Copy
+Future<void> placeOrder() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
+
+  await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+    'fullname': nameController.text,
+    'contact': contactController.text,
+    'address': addressController.text,
+  }, SetOptions(merge: true));
+
+  await FirebaseFirestore.instance.collection('orders').add({
+    'orderId': orderId,
+    'userId': user.uid,
+    'fuelType': widget.selectedFuel,
+    'quantity': widget.selectedQuantity,
+    'price': pricePerLitre,
+    'fuelTotal': totalFuelPrice,
+    'shippingFee': 250,
+    'totalAmount': totalPrice,
+    'deliveryType': widget.selectedDelivery,
+    'orderDate': Timestamp.now(),
+    'status': 'Processing',
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -140,7 +225,7 @@ class _BillingPageState extends State<BillingPage> {
                           children: [
                             Text(widget.selectedFuel, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             Text("${widget.selectedQuantity}L"),
-                            Text("Rs. 250.00"),
+                            Text("Rs. $pricePerLitre.00"),
                           ],
                         ),
                       ],

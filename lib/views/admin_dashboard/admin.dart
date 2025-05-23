@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_6/views/admin_dashboard/fueltypes.dart';
+import 'package:flutter_application_6/views/admin_dashboard/manageorders.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -124,7 +125,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Container(
             child: GestureDetector(
               onTap: () {
-                
+                Get.to(() => const ManageOrdersPage());
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
