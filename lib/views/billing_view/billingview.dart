@@ -142,6 +142,23 @@ class _BillingPageState extends State<BillingPage> {
     Navigator.pop(context);
   }
 
+  String deliveryDateRange() {
+    DateTime today = DateTime.now();
+    DateTime startDelivery = today.add(Duration(days: 3));
+    DateTime endDelivery = today.add(Duration(days: 7));
+
+    const monthNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    String startDay = startDelivery.day.toString();
+    String endDay = endDelivery.day.toString();
+    String month = monthNames[endDelivery.month - 1];
+
+    return "Get by $startDay-$endDay $month";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,7 +200,7 @@ class _BillingPageState extends State<BillingPage> {
                       child: Column(
                         children: [
                           Text(widget.selectedDelivery, style: TextStyle(fontWeight: FontWeight.bold, backgroundColor: const Color.fromARGB(137, 92, 91, 91),)),
-                          Text("Get by 20-23 Feb"),
+                          Text(deliveryDateRange()), 
                           Text("Rs. 250"),
                         ],
                       ),
@@ -198,7 +215,7 @@ class _BillingPageState extends State<BillingPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Fuel Total:', style: TextStyle(fontSize: 16)),
-                        Text('$totalFuelPrice', style: TextStyle(fontSize: 16)),
+                        Text('Rs. $totalFuelPrice', style: TextStyle(fontSize: 16)),
                       ],
                     ),
                     SizedBox(height: 10),

@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ChangePricesPage extends StatefulWidget {
-  const ChangePricesPage({super.key});
+class PricesView extends StatefulWidget {
+  const PricesView({super.key});
 
   @override
-  _ChangePricesPageState createState() => _ChangePricesPageState();
+  _PricesViewState createState() => _PricesViewState();
 }
 
-class _ChangePricesPageState extends State<ChangePricesPage> {
+class _PricesViewState extends State<PricesView> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   bool _isLoading = true;
@@ -25,7 +25,7 @@ class _ChangePricesPageState extends State<ChangePricesPage> {
     User? user = _auth.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please sign in to manage fuel prices")),
+        const SnackBar(content: Text("Please sign in to see fuel prices")),
       );
       setState(() {
         _isLoading = false;
@@ -52,75 +52,11 @@ class _ChangePricesPageState extends State<ChangePricesPage> {
     }
   }
 
-  void _showUpdatePriceDialog(String fuelId, String fuelName, int currentPrice) {
-    final TextEditingController priceController = TextEditingController(text: currentPrice.toString());
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Update Price for $fuelName"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: priceController,
-                  decoration: const InputDecoration(
-                    labelText: "New Price (per litre)",
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Close"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  int newPrice = int.tryParse(priceController.text) ?? currentPrice;
-                  if (newPrice <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Price must be a positive number")),
-                    );
-                    return;
-                  }
-
-                  await _firestore.collection('fuel_types').doc(fuelId).update({
-                    'price': newPrice,
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Price updated to Rs. $newPrice for $fuelName")),
-                  );
-                  await _loadFuelTypes();
-                  Navigator.pop(context);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error updating price: $e")),
-                  );
-                }
-              },
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Fuel Prices"),
+        title: const Text("See Fuel Prices"),
         backgroundColor: Colors.green,
       ),
       body: Column(
@@ -166,18 +102,7 @@ class _ChangePricesPageState extends State<ChangePricesPage> {
                                       ],
                                     ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.green),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () {
-                                      _showUpdatePriceDialog(
-                                        fuel.id,
-                                        fuelName,
-                                        int.tryParse(price) ?? 0,
-                                      );
-                                    },
-                                  ),
+                              
                                 ],
                               ),
                             ),
